@@ -1,3 +1,10 @@
+![Python](https://img.shields.io/badge/Python-3.x-blue)
+![AI Based](https://img.shields.io/badge/AI-Decision%20Support-orange)
+![Status](https://img.shields.io/badge/Project-Active-brightgreen)
+![Simulation](https://img.shields.io/badge/Airspace-Safety%20Monitoring-yellow)
+![Academic](https://img.shields.io/badge/Use-Academic%20Research-lightgrey)
+![3D Trajectory](https://img.shields.io/badge/Trajectory-3D%20Prediction-purple)
+
 # ✈️ UAO Detection – Airspace Safety Monitoring System
 
 ## 📌 Project Overview
