@@ -47,3 +47,8 @@ for act in action:
 
 if __name__ == "__main__":
     main()
+
+
+
+#Note:
+#All spatial and motion parameters used in this project are simulated units for academic safety monitoring and do not represent real-world operational airspace data.
