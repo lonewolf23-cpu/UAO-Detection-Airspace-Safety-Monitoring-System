@@ -35,13 +35,6 @@ def main():
 
     risk = assess_risk(speed, violation, restricted_entry, altitude_change, speed_change)
 
-    print("Risk Level:", risk)
-
-
-    action = issue_alert(risk)
-
-    risk = assess_risk(speed, violation, restricted_entry, altitude_change, speed_change)
-
     action = issue_alert(risk)
 
     print("\nUAV Risk Assessment Result")
@@ -49,9 +42,8 @@ def main():
     print("Risk Level:", risk)
     print("Recommended Actions:")
 
-for act in action:
-    print("-", act)
-
+    for act in action:
+        print("-", act)
 
 if __name__ == "__main__":
     main()
