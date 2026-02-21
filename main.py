@@ -3,6 +3,27 @@ from src.trajectory import predict_path, restricted_airspace_violation
 from src.risk_assessment import assess_risk
 from src.alert_system import issue_alert
 
+import random
+
+def generate_simulated_motion():
+
+    previous_position = (
+        random.randint(0,100),
+        random.randint(0,100),
+        random.randint(50,200)
+    )
+
+    current_position = (
+        random.randint(0,100),
+        random.randint(0,100),
+        random.randint(50,200)
+    )
+
+    speed = random.randint(20,200)
+    altitude_change = random.randint(10,100)
+    speed_change = random.randint(10,150)
+
+    return previous_position, current_position, speed, altitude_change, speed_change
 
 def main():
 
