@@ -1,25 +1,16 @@
 import random
 
 def detect_object():
-    
+
     objects = [
-        "Drone",
-        "Aircraft",
-        "Unknown Object",
-        "Unidentified Object",
-        "Bird",
-        "Flock of Birds",
-        "Drones",
-        "Aircrafts",
-        "Unknown Objects",
-        "Unidentified Objects",
-        "Birds"
+        ("Drone", "THREAT"),
+        ("Aircraft", "THREAT"),
+        ("Unknown Object", "THREAT"),
+        ("Unidentified Object", "THREAT"),
+        ("Bird", "NON-THREAT"),
+        ("Flock of Birds", "NON-THREAT")
     ]
 
-    detected = random.choice(objects)
+    detected_object, threat_type = random.choice(objects)
 
-    if detected == "Bird" or detected == "Flock of Birds":
-        return detected, "NON-THREAT"
-    
-    else:
-        return detected
+    return detected_object, threat_type
