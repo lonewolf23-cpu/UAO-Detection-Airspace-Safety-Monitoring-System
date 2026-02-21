@@ -40,7 +40,15 @@ def main():
 
     action = issue_alert(risk)
 
+    risk = assess_risk(speed, violation, restricted_entry, altitude_change, speed_change)
+
+    action = issue_alert(risk)
+
+    print("\nUAV Risk Assessment Result")
+    print("----------------------------")
+    print("Risk Level:", risk)
     print("Recommended Actions:")
+
 for act in action:
     print("-", act)
 
