@@ -37,11 +37,10 @@ def main():
         return
 
 
-    previous_position = (10, 20, 100)
-    current_position  = (25, 40, 180)
+    previous_position, current_position, speed, altitude_change, speed_change = generate_simulated_motion()
 
-    previous_altitude = 100
-    current_altitude  = 180
+    previous_altitude = previous_position[2]
+    current_altitude  = current_position[2]
 
     next_position = predict_path(previous_position, current_position, previous_altitude, current_altitude)
 
@@ -51,10 +50,6 @@ def main():
     radius = 100
 
     violation = restricted_airspace_violation(next_position, restricted_zone_center, radius)
-
-    speed = 160
-    altitude_change = 80
-    speed_change = 120
 
     risk = assess_risk(speed, violation, altitude_change, speed_change)
 
