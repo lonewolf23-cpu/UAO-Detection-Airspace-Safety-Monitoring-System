@@ -1,10 +1,10 @@
 # ==============================
 # main.py
-# Live Airspace Safety Monitoring System
+# Airspace Safety Monitoring System (LIVE RADAR VERSION)
 # ==============================
 
-import time
 import random
+import matplotlib.pyplot as plt
 
 from src.detection import detect_object
 from src.trajectory import predict_path, restricted_airspace_violation
@@ -16,7 +16,7 @@ from src.live_radar import LiveRadar
 # ------------------------------
 # GLOBAL CONFIGURATION
 # ------------------------------
-restricted_zone_center = (0, 0, 150) 
+restricted_zone_center = (0, 0, 150)   # MUST be 3D (x, y, z)
 radius = 150
 
 
@@ -24,6 +24,7 @@ radius = 150
 # SIMULATED MOTION
 # ------------------------------
 def generate_simulated_motion():
+
     current_position = (
         random.randint(-120, 120),
         random.randint(-120, 120),
@@ -44,7 +45,7 @@ def generate_simulated_motion():
 
 
 # ------------------------------
-# MAIN LOOP
+# MAIN FUNCTION
 # ------------------------------
 def main():
 
@@ -58,13 +59,16 @@ def main():
         detected_object, threat_type = detect_object()
         print("Detected Object:", detected_object)
 
+        # Ignore natural activity
         if threat_type == "NON-THREAT":
             print("Status: Natural Activity")
-            time.sleep(2)
             radar.update(None)
+            plt.pause(1.5)
             continue
 
         current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
+
+        print("Predicted Path:", next_position)
 
         violation = restricted_airspace_violation(
             next_position,
@@ -73,18 +77,20 @@ def main():
         )
 
         risk = assess_risk(speed, violation, altitude_change, speed_change)
-        action = issue_alert(risk)
+        actions = issue_alert(risk)
 
-        print("Predicted Path:", next_position)
         print("Risk Level:", risk)
-
-        for act in action:
+        for act in actions:
             print("-", act)
 
         radar.update(current_position)
 
-        time.sleep(2)
+        # IMPORTANT: keep GUI responsive
+        plt.pause(1.5)
 
 
+# ------------------------------
+# PROGRAM ENTRY POINT
+# ------------------------------
 if __name__ == "__main__":
     main()
