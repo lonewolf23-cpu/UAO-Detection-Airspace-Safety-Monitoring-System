@@ -46,6 +46,7 @@ def main():
     current_altitude  = current_position[2]
 
     next_position = predict_path(previous_position, current_position, previous_altitude, current_altitude)
+    show_radar(current_position, next_position, restricted_zone_center, radius)
 
     print("Predicted Path:", next_position)
 
