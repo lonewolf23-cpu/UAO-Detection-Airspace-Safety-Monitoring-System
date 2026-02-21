@@ -19,17 +19,13 @@ class LiveRadar:
         self.ax.set_ylim(0, self.radius)
         self.ax.set_yticks([])
         self.ax.set_xticks([])
-        self.ax.grid(color="green", alpha=0.2)
+        self.ax.grid(color="green", alpha=0.25)
 
-        # Radar sweep
-        self.sweep_line, = self.ax.plot(
-            [], [], color="lime", linewidth=2, alpha=0.9
-        )
+        # Radar sweep line
+        self.sweep_line, = self.ax.plot([], [], color="lime", linewidth=2)
 
         # Target blip
-        self.scatter = self.ax.scatter(
-            [], [], s=80, c="lime", alpha=0.9
-        )
+        self.scatter = self.ax.scatter([], [], s=90, c="lime")
 
         self.anim = FuncAnimation(
             self.fig,
@@ -56,13 +52,12 @@ class LiveRadar:
         self.target = (theta, r)
 
     def _animate(self, frame):
-        # Rotate sweep
         self.angle += 0.04
+
         theta = np.linspace(self.angle, self.angle + 0.03, 100)
         r = np.linspace(0, self.radius, 100)
         self.sweep_line.set_data(theta, r)
 
-        # Update target
         if self.target:
             t, r_val = self.target
             self.scatter.set_offsets([[t, r_val]])
