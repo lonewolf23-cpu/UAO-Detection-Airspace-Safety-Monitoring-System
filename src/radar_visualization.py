@@ -1,5 +1,3 @@
-from src.radar_visualization import show_radar
-import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 
 def show_radar(current_position, next_position, restricted_zone_center, radius):
