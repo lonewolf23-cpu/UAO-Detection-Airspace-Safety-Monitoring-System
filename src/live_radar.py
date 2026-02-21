@@ -8,49 +8,65 @@ class LiveRadar:
     def __init__(self, radius=150):
 
         self.radius = radius
-        self.angle = 0
-        self.targets = []
+        self.angle = 0.0
+        self.target = None
 
         plt.style.use("dark_background")
+
         self.fig, self.ax = plt.subplots(subplot_kw={"polar": True})
         self.fig.canvas.manager.set_window_title("Live Radar Monitor")
 
         self.ax.set_ylim(0, self.radius)
         self.ax.set_yticks([])
         self.ax.set_xticks([])
+        self.ax.grid(color="green", alpha=0.2)
 
-        self.sweep_line, = self.ax.plot([], [], color="lime", linewidth=2)
-        self.scatter = self.ax.scatter([], [], color="lime", s=60)
+        # Radar sweep
+        self.sweep_line, = self.ax.plot(
+            [], [], color="lime", linewidth=2, alpha=0.9
+        )
+
+        # Target blip
+        self.scatter = self.ax.scatter(
+            [], [], s=80, c="lime", alpha=0.9
+        )
 
         self.anim = FuncAnimation(
             self.fig,
             self._animate,
             interval=50,
-            blit=True
+            cache_frame_data=False
         )
 
         plt.show(block=False)
 
     def update(self, position):
-        if position:
-            x, y, _ = position
-            r = np.sqrt(x**2 + y**2)
-            theta = np.arctan2(y, x)
-            self.targets = [(theta, r)]
-        else:
-            self.targets = []
+        if position is None:
+            self.target = None
+            return
+
+        x, y, _ = position
+        r = np.sqrt(x**2 + y**2)
+
+        if r > self.radius:
+            self.target = None
+            return
+
+        theta = np.arctan2(y, x)
+        self.target = (theta, r)
 
     def _animate(self, frame):
-        self.angle += 0.05
-
-        theta = np.linspace(self.angle, self.angle + 0.02, 100)
+        # Rotate sweep
+        self.angle += 0.04
+        theta = np.linspace(self.angle, self.angle + 0.03, 100)
         r = np.linspace(0, self.radius, 100)
         self.sweep_line.set_data(theta, r)
 
-        if self.targets:
-            t, r = zip(*self.targets)
-            self.scatter.set_offsets(np.c_[t, r])
+        # Update target
+        if self.target:
+            t, r_val = self.target
+            self.scatter.set_offsets([[t, r_val]])
         else:
-            self.scatter.set_offsets([])
+            self.scatter.set_offsets(np.empty((0, 2)))
 
         return self.sweep_line, self.scatter
