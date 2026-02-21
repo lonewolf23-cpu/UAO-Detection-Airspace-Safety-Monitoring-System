@@ -65,8 +65,10 @@ def main():
         print("-", act)
 
 if __name__ == "__main__":
-    main()
-
+    while True:
+        print("\nScanning Airspace...\n")
+        main()
+        time.sleep(3)
 
 
 #Note:
