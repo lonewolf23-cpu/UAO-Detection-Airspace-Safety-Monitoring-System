@@ -15,7 +15,7 @@ def predict_path(previous_position, current_position,previous_altitude,current_a
     next_y = y2 + velocity_y
     next_z = z2 + velocity_z
 
-    next position = (x, y, z)
+    next_position = (x, y, z)
 
     return (next_x, next_y, next_z)
 
