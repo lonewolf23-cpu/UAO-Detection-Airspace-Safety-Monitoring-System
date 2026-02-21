@@ -40,7 +40,7 @@ def main():
 
     action = issue_alert(risk)
 
-   print("Recommended Actions:")
+    print("Recommended Actions:")
 for act in action:
     print("-", act)
 
