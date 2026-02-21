@@ -65,11 +65,17 @@ def main():
         print("-", act)
 
 if __name__ == "__main__":
-    while True:
-        print("\nScanning Airspace...\n")
-        main()
-        time.sleep(3)
+    import time
 
+    while True:
+        print("\n==============================")
+        print(" Airspace Safety Monitoring ")
+        print("==============================\n")
+
+        main()
+
+        print("\nNext Scan in 3 seconds...\n")
+        time.sleep(3)
 
 #Note:
 #All spatial and motion parameters used in this project are simulated units for academic safety monitoring and do not represent real-world operational airspace data.
