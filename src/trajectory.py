@@ -31,3 +31,16 @@ def restricted_airspace_violation(object_position, zone_center, radius):
         return True
     else:
         return False
+
+
+def restricted_airspace_violation(object_position, zone_center, radius):
+
+    ox, oy, oz = object_position
+    zx, zy, zz = zone_center
+
+    distance = ((ox - zx)**2 + (oy - zy)**2 + (oz - zz)**2) ** 0.5
+
+    if distance <= radius:
+        return True
+    else:
+        return False
