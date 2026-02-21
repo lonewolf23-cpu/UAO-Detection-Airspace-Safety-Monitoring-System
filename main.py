@@ -16,7 +16,7 @@ from src.live_radar import LiveRadar
 # ------------------------------
 # GLOBAL CONFIGURATION
 # ------------------------------
-restricted_zone_center = (0, 0)
+restricted_zone_center = (0, 0, 150) 
 radius = 150
 
 
