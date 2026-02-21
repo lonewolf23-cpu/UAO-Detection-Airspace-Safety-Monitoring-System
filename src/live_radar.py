@@ -1,108 +1,56 @@
+# src/live_radar.py
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, Wedge
-import time
-import math
-
-plt.ion()
-
-# Radar display setup
-fig, ax = plt.subplots(figsize=(7, 7))
-fig.canvas.manager.set_window_title("Live Airspace Radar")
-
-SWEEP_ANGLE = 0
+from matplotlib.animation import FuncAnimation
 
 
-def show_live_radar(current_position, next_position, restricted_zone_center, radius):
-    global SWEEP_ANGLE
+class LiveRadar:
+    def __init__(self, radius=150):
 
-    ax.clear()
+        self.radius = radius
+        self.angle = 0
+        self.targets = []
 
-    # Radar limits
-    ax.set_xlim(-200, 200)
-    ax.set_ylim(-200, 200)
-    ax.set_aspect("equal")
-    ax.axis("off")
+        plt.style.use("dark_background")
+        self.fig, self.ax = plt.subplots(subplot_kw={"polar": True})
+        self.fig.canvas.manager.set_window_title("Live Radar Monitor")
 
-    # Background
-    ax.set_facecolor("#001010")
-    fig.patch.set_facecolor("#001010")
+        self.ax.set_ylim(0, self.radius)
+        self.ax.set_yticks([])
+        self.ax.set_xticks([])
 
-    # Radar grid rings
-    for r in range(50, 201, 50):
-        ax.add_patch(
-            Circle((0, 0), r, fill=False, color="#00ff99", alpha=0.2)
+        self.sweep_line, = self.ax.plot([], [], color="lime", linewidth=2)
+        self.scatter = self.ax.scatter([], [], color="lime", s=60)
+
+        self.anim = FuncAnimation(
+            self.fig,
+            self._animate,
+            interval=50,
+            blit=True
         )
 
-    # Cross lines
-    ax.plot([-200, 200], [0, 0], color="#00ff99", alpha=0.2)
-    ax.plot([0, 0], [-200, 200], color="#00ff99", alpha=0.2)
+        plt.show(block=False)
 
-    # Rotating sweep beam
-    sweep = Wedge(
-        (0, 0),
-        200,
-        SWEEP_ANGLE,
-        SWEEP_ANGLE + 25,
-        color="#00ff99",
-        alpha=0.25
-    )
-    ax.add_patch(sweep)
+    def update(self, position):
+        if position:
+            x, y, _ = position
+            r = np.sqrt(x**2 + y**2)
+            theta = np.arctan2(y, x)
+            self.targets = [(theta, r)]
+        else:
+            self.targets = []
 
-    SWEEP_ANGLE = (SWEEP_ANGLE + 8) % 360
+    def _animate(self, frame):
+        self.angle += 0.05
 
-    # Restricted airspace
-    ax.add_patch(
-        Circle(
-            (restricted_zone_center[0], restricted_zone_center[1]),
-            radius,
-            fill=False,
-            edgecolor="red",
-            linewidth=2
-        )
-    )
+        theta = np.linspace(self.angle, self.angle + 0.02, 100)
+        r = np.linspace(0, self.radius, 100)
+        self.sweep_line.set_data(theta, r)
 
-    # UAV current position
-    ax.scatter(
-        current_position[0],
-        current_position[1],
-        color="#00ff00",
-        s=40
-    )
+        if self.targets:
+            t, r = zip(*self.targets)
+            self.scatter.set_offsets(np.c_[t, r])
+        else:
+            self.scatter.set_offsets([])
 
-    # Predicted position
-    ax.scatter(
-        next_position[0],
-        next_position[1],
-        color="yellow",
-        marker="x",
-        s=60
-    )
-
-    # Trajectory line
-    ax.plot(
-        [current_position[0], next_position[0]],
-        [current_position[1], next_position[1]],
-        color="#00ff99",
-        linewidth=1
-    )
-
-    # HUD text
-    ax.text(
-        -190,
-        185,
-        f"SCAN TIME: {time.strftime('%H:%M:%S')}",
-        color="#00ff99",
-        fontsize=9
-    )
-
-    ax.text(
-        -190,
-        170,
-        "MODE: LIVE TRACKING",
-        color="#00ff99",
-        fontsize=9
-    )
-
-    plt.draw()
-    plt.pause(0.05)
+        return self.sweep_line, self.scatter
