@@ -33,7 +33,7 @@ def main():
     altitude_change = 80
     speed_change = 120
 
-    risk = assess_risk(speed, violation, altitude_change, speed_change)
+    risk = assess_risk(speed, violation, restricted_entry, altitude_change, speed_change)
 
     print("Risk Level:", risk)
 
