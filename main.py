@@ -1,4 +1,6 @@
 import time
+from src.radar_visualization import show_radar
+import matplotlib.pyplot as plt
 from src.detection import detect_object
 from src.trajectory import predict_path, restricted_airspace_violation
 from src.risk_assessment import assess_risk
@@ -63,10 +65,12 @@ def main():
 
     for act in action:
         print("-", act)
+    plt.ion()    
 
 if __name__ == "__main__":
     import time
 
+    plt.ion()
     while True:
         print("\n==============================")
         print(" Airspace Safety Monitoring ")
