@@ -10,66 +10,66 @@ class LiveRadar:
         self.radius = radius
         self.angle = 0.0
         self.target = None
+        self.history = []   # afterglow memory
 
         plt.style.use("dark_background")
 
         self.fig, self.ax = plt.subplots(
             subplot_kw={"polar": True},
-            figsize=(6, 6)
+            figsize=(7, 7)
         )
-        self.fig.canvas.manager.set_window_title("Live Radar Monitor")
+        self.fig.canvas.manager.set_window_title("Advanced Radar Display")
 
-        # Radar limits
         self.ax.set_ylim(0, self.radius)
         self.ax.set_yticks([])
         self.ax.set_xticks([])
+        self.ax.set_facecolor("#020a02")
 
-        # Grid / rings
-        for r in range(30, self.radius + 1, 30):
+        # Radar rings
+        for r in range(25, self.radius + 1, 25):
             self.ax.plot(
-                np.linspace(0, 2*np.pi, 300),
-                [r]*300,
-                color="green",
-                alpha=0.15,
+                np.linspace(0, 2*np.pi, 360),
+                [r]*360,
+                color="#00ff66",
+                alpha=0.08,
                 linewidth=1
             )
 
         # Crosshair
-        for angle in [0, np.pi/2, np.pi, 3*np.pi/2]:
+        for a in [0, np.pi/2, np.pi, 3*np.pi/2]:
             self.ax.plot(
-                [angle, angle],
+                [a, a],
                 [0, self.radius],
-                color="green",
-                alpha=0.2,
+                color="#00ff66",
+                alpha=0.15,
                 linewidth=1
             )
 
-        # Sweep (filled sector)
-        self.sweep, = self.ax.fill(
-            [], [],
-            color="lime",
-            alpha=0.25
+        # Noise clutter (static)
+        noise_theta = np.random.uniform(0, 2*np.pi, 400)
+        noise_r = np.random.uniform(0, self.radius, 400)
+        self.ax.scatter(
+            noise_theta,
+            noise_r,
+            s=2,
+            c="#00ff66",
+            alpha=0.03
         )
 
-        # Bright sweep edge
-        self.sweep_line, = self.ax.plot(
-            [], [],
-            color="lime",
-            linewidth=2
-        )
+        # Sweep glow (sector)
+        self.sweep, = self.ax.fill([], [], color="#00ff66", alpha=0.25)
+        self.sweep_edge, = self.ax.plot([], [], color="#66ff99", linewidth=2)
 
-        # Target blip
-        self.scatter = self.ax.scatter(
-            [], [],
-            s=120,
-            c="lime",
-            alpha=0.9
-        )
+        # Target afterglow points
+        self.glow = self.ax.scatter([], [], s=120, c="#66ff99", alpha=0.4)
+
+        # Main target
+        self.target_dot = self.ax.scatter([], [], s=160, c="#00ff66", alpha=1)
 
         self.anim = FuncAnimation(
             self.fig,
             self._animate,
-            interval=40,
+            interval=35,
             cache_frame_data=False
         )
 
@@ -84,40 +84,44 @@ class LiveRadar:
         r = np.sqrt(x**2 + y**2)
 
         if r > self.radius:
-            self.target = None
             return
 
         theta = np.arctan2(y, x)
         self.target = (theta, r)
 
+        # store history for glow
+        self.history.append((theta, r))
+        if len(self.history) > 15:
+            self.history.pop(0)
+
     def _animate(self, frame):
         self.angle += 0.035
-        sweep_width = 0.35
+        sweep_width = 0.45
 
-        theta = np.linspace(
-            self.angle,
-            self.angle + sweep_width,
-            100
-        )
-        r = np.linspace(0, self.radius, 100)
+        theta = np.linspace(self.angle, self.angle + sweep_width, 200)
+        r = np.linspace(0, self.radius, 200)
 
-        # Filled sweep
+        # redraw sweep
         self.sweep.remove()
         self.sweep, = self.ax.fill(
             np.concatenate([theta, theta[::-1]]),
             np.concatenate([r, np.zeros_like(r)]),
-            color="lime",
+            color="#00ff66",
             alpha=0.18
         )
+        self.sweep_edge.set_data(theta, r)
 
-        # Sweep edge
-        self.sweep_line.set_data(theta, r)
-
-        # Target
-        if self.target:
-            t, r_val = self.target
-            self.scatter.set_offsets([[t, r_val]])
+        # afterglow
+        if self.history:
+            ht, hr = zip(*self.history)
+            self.glow.set_offsets(np.c_[ht, hr])
         else:
-            self.scatter.set_offsets(np.empty((0, 2)))
+            self.glow.set_offsets(np.empty((0, 2)))
 
-        return self.sweep_line, self.scatter, self.sweep
+        # main target
+        if self.target:
+            self.target_dot.set_offsets([[self.target[0], self.target[1]]])
+        else:
+            self.target_dot.set_offsets(np.empty((0, 2)))
+
+        return self.sweep, self.sweep_edge, self.glow, self.target_dot
