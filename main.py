@@ -26,6 +26,9 @@ def main():
 
     print("Predicted Path:", next_position)
 
+    restricted_zone_center = (50, 50, 200)
+    radius = 100
+
     violation = restricted_airspace_violation(next_position, restricted_zone_center, radius)
 
     speed = 160
