@@ -1,3 +1,4 @@
+import time
 from src.detection import detect_object
 from src.trajectory import predict_path, restricted_airspace_violation
 from src.risk_assessment import assess_risk
