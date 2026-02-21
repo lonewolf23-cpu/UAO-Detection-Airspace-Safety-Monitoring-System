@@ -16,16 +16,15 @@ def main():
         return
 
 
+    previous_position = (10, 20, 100)
+    current_position  = (25, 40, 180)
+
     previous_altitude = (10, 20)
     current_altitude  = (25, 40)
-    
+
     next_position = predict_path(previous_position, current_position, previous_altitude, current_altitude)
 
     print("Predicted Path:", next_position)
-
-
-    restricted_zone_center = (50, 50, 200)
-    radius = 100
 
     violation = restricted_airspace_violation(next_position, restricted_zone_center, radius)
 
