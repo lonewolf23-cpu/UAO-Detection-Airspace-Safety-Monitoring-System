@@ -72,23 +72,23 @@ def main():
     # ==========================
     if HEADLESS:
 
-    print("Headless Mode → Generating 2D Map Frames")
+       print("Headless Mode → Generating 2D Map Frames")
 
-    from src.frame_generator import FrameGenerator
-    generator = FrameGenerator(radius=radius)
+       from src.frame_generator import FrameGenerator
+       generator = FrameGenerator(radius=radius)
 
-    for frame in range(300):
+       for frame in range(300):
 
-        current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
+           current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
 
-        generator.generate(
-            current_position,
-            next_position,
-            frame
-        )
+           generator.generate(
+               current_position,
+               next_position,
+               frame
+           )
 
-    print("2D Frames Generated Successfully!")
-    return
+       print("2D Frames Generated Successfully!")
+       return
     
     # ==========================
     # GUI MODE (Local Windows)
