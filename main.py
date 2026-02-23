@@ -14,6 +14,7 @@ HEADLESS = (
 import matplotlib.pyplot as plt
 
 from src.detection import detect_object
+from src.frame_generator import FrameGenerator
 from src.trajectory import predict_path, restricted_airspace_violation
 from src.risk_assessment import assess_risk
 from src.alert_system import issue_alert
@@ -70,14 +71,24 @@ def main():
     # HEADLESS MODE (Codespaces)
     # ==========================
     if HEADLESS:
-        print("Running in Headless Mode → Generating Frames...")
 
-        for frame in range(300):
-            radar._animate(frame)
+    print("Headless Mode → Generating 2D Map Frames")
 
-        print("Frames Generated Successfully!")
-        return   # IMPORTANT: stop here
+    generator = FrameGenerator(radius=radius)
 
+    for frame in range(300):
+
+        current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
+
+        generator.generate(
+            current_position,
+            next_position,
+            frame
+        )
+
+    print("2D Frames Generated Successfully!")
+    return
+    
     # ==========================
     # GUI MODE (Local Windows)
     # ==========================
