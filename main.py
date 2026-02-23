@@ -3,6 +3,8 @@
 # Airspace Safety Monitoring System (LIVE RADAR VERSION)
 # ==============================
 
+import signal
+import sys
 import random
 import matplotlib.pyplot as plt
 
@@ -43,6 +45,12 @@ def generate_simulated_motion():
 
     return current_position, next_position, speed, altitude_change, speed_change
 
+def signal_handler(sig, frame):
+    print("\nStopping Airspace Monitoring System...")
+
+    plt.close('all')   # closes radar window
+    sys.exit(0)        # stops program completely
+
 
 # ------------------------------
 # MAIN FUNCTION
@@ -50,6 +58,7 @@ def generate_simulated_motion():
 def main():
 
     radar = LiveRadar(radius=radius)
+    signal.signal(signal.SIGINT, signal_handler)
 
     while True:
         print("\n==============================")
