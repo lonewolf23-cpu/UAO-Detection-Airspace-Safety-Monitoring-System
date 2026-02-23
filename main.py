@@ -6,6 +6,11 @@
 import signal
 import sys
 import random
+import os
+HEADLESS = (
+    os.environ.get("CODESPACES") == "true"
+    or os.environ.get("DISPLAY") is None
+)
 import matplotlib.pyplot as plt
 
 from src.detection import detect_object
@@ -57,9 +62,25 @@ def signal_handler(sig, frame):
 # ------------------------------
 def main():
 
-    radar = LiveRadar(radius=radius)
     signal.signal(signal.SIGINT, signal_handler)
 
+    radar = LiveRadar(radius=radius)
+
+    # ==========================
+    # HEADLESS MODE (Codespaces)
+    # ==========================
+    if HEADLESS:
+        print("Running in Headless Mode → Generating Frames...")
+
+        for frame in range(300):
+            radar._animate(frame)
+
+        print("Frames Generated Successfully!")
+        return   # IMPORTANT: stop here
+
+    # ==========================
+    # GUI MODE (Local Windows)
+    # ==========================
     while True:
         print("\n==============================")
         print(" Airspace Safety Monitoring ")
@@ -68,7 +89,6 @@ def main():
         detected_object, threat_type = detect_object()
         print("Detected Object:", detected_object)
 
-        # Ignore natural activity
         if threat_type == "NON-THREAT":
             print("Status: Natural Activity")
             radar.update(None)
@@ -94,7 +114,6 @@ def main():
 
         radar.update(current_position)
 
-        # IMPORTANT: keep GUI responsive
         plt.pause(1.5)
 
 
