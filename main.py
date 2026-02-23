@@ -74,6 +74,7 @@ def main():
 
     print("Headless Mode → Generating 2D Map Frames")
 
+    from src.frame_generator import FrameGenerator
     generator = FrameGenerator(radius=radius)
 
     for frame in range(300):
