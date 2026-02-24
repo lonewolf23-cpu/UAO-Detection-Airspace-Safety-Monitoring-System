@@ -117,7 +117,7 @@ def main():
         if threat_type == "NON-THREAT":
             print("Status: Natural Activity")
             radar.update(None)
-            radar.run()
+            radar.run_frames()
             continue
 
         current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
@@ -138,7 +138,7 @@ def main():
             print("-", act)
 
         radar.update(current_position)
-        radar.run()
+        radar.run_frames()
 
 
 # ------------------------------
