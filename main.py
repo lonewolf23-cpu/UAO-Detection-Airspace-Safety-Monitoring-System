@@ -8,6 +8,23 @@ import sys
 import random
 import os
 import platform
+import pygame
+import matplotlib.pyplot as plt
+
+from src.detection import detect_object
+from src.frame_generator import FrameGenerator
+from src.trajectory import restricted_airspace_violation
+from src.risk_assessment import assess_risk
+from src.alert_system import issue_alert
+from src.advanced_radar import AdvancedRadar   # ✅ ONLY THIS IMPORT
+
+
+# ------------------------------
+# GLOBAL CONFIGURATION
+# ------------------------------
+restricted_zone_center = (0, 0, 150)
+radius = 150
+
 HEADLESS = (
     os.environ.get("CODESPACES") == "true"
     or (
@@ -15,22 +32,6 @@ HEADLESS = (
         and os.environ.get("DISPLAY") is None
     )
 )
-import matplotlib.pyplot as plt
-
-from src.detection import detect_object
-from src.frame_generator import FrameGenerator
-from src.trajectory import predict_path, restricted_airspace_violation
-from src.risk_assessment import assess_risk
-from src.alert_system import issue_alert
-from src.live_radar import LiveRadar
-from src.advanced_radar import AdvancedRadar
-
-
-# ------------------------------
-# GLOBAL CONFIGURATION
-# ------------------------------
-restricted_zone_center = (0, 0, 150)   # MUST be 3D (x, y, z)
-radius = 150
 
 
 # ------------------------------
@@ -56,58 +57,60 @@ def generate_simulated_motion():
 
     return current_position, next_position, speed, altitude_change, speed_change
 
+
+# ------------------------------
+# STOP HANDLER
+# ------------------------------
 def signal_handler(sig, frame):
     print("\nStopping Airspace Monitoring System...")
-
-    plt.close('all')   # closes radar window
-    sys.exit(0)        # stops program completely
+    pygame.quit()
+    plt.close('all')
+    sys.exit(0)
 
 
 # ------------------------------
 # MAIN FUNCTION
 # ------------------------------
-from advanced_radar import AdvancedRadar
 def main():
 
     signal.signal(signal.SIGINT, signal_handler)
 
-# ==========================
-# RADAR SELECTION
-# ==========================
+    # ==========================
+    # HEADLESS MODE
+    # ==========================
     if HEADLESS:
         print("Headless Mode → Generating 2D Map Frames")
-        radar = None
+
         generator = FrameGenerator(radius=radius)
-    else:
-        print("GUI Mode → Advanced Radar Activated")
-        radar = AdvancedRadar()
+
+        for frame in range(300):
+
+            current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
+
+            generator.generate(
+                current_position,
+                next_position,
+                frame
+            )
+
+        print("2D Frames Generated Successfully!")
+        return
+
 
     # ==========================
-    # HEADLESS MODE (Codespaces)
+    # GUI MODE
     # ==========================
-    if HEADLESS:
+    print("GUI Mode → Advanced Radar Activated")
 
-       print("Headless Mode → Generating 2D Map Frames")
+    radar = AdvancedRadar()   # ✅ created ONLY in GUI
 
-       generator = FrameGenerator(radius=radius)
-
-       for frame in range(300):
-
-           current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
-
-           generator.generate(
-               current_position,
-               next_position,
-               frame
-           )
-
-       print("2D Frames Generated Successfully!")
-       return
-    
-    # ==========================
-    # GUI MODE (Local Windows)
-    # ==========================
     while True:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
         print("\n==============================")
         print(" Airspace Safety Monitoring ")
         print("==============================\n")
@@ -143,7 +146,7 @@ def main():
 
 
 # ------------------------------
-# PROGRAM ENTRY POINT
+# PROGRAM ENTRY
 # ------------------------------
 if __name__ == "__main__":
     main()
