@@ -3,82 +3,79 @@ import math
 
 WIDTH, HEIGHT = 900, 700
 CENTER = (WIDTH//2, HEIGHT//2)
-RADIUS = 250
+RADIUS = 260
 
 class AdvancedRadar:
 
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Air Defense Radar System")
+        pygame.display.set_caption("Military Radar Display")
 
         self.clock = pygame.time.Clock()
         self.angle = 0
         self.targets = []
-        self.current_object = None   # initialize here ✅
+        self.trails = []
 
-    def update(self, detected_object):
-        if detected_object is None:
-            return
-
-        # update radar tracking logic
-        self.current_object = detected_object
-
-    def draw_glow_circle(self, radius, color):
-        for i in range(10):
-            pygame.draw.circle(
-                self.screen,
-                (color[0], color[1], color[2]),
-                CENTER,
-                radius+i,
-                1
-            )
-
-    def draw_radar_grid(self):
+    def draw_rings(self):
         for r in range(50, RADIUS, 50):
-            self.draw_glow_circle(r, (0,255,150))
+            pygame.draw.circle(self.screen,(0,255,120),CENTER,r,1)
 
-        pygame.draw.line(self.screen,(0,255,150),
-            (CENTER[0]-RADIUS,CENTER[1]),
-            (CENTER[0]+RADIUS,CENTER[1]),1)
+    def draw_sweep_sector(self):
 
-        pygame.draw.line(self.screen,(0,255,150),
-            (CENTER[0],CENTER[1]-RADIUS),
-            (CENTER[0],CENTER[1]+RADIUS),1)
+        for i in range(20):
 
-    def draw_sweep(self):
-        self.angle += 0.03
-        x = CENTER[0] + RADIUS * math.cos(self.angle)
-        y = CENTER[1] + RADIUS * math.sin(self.angle)
+            alpha = max(5, 60 - i*3)
 
-        pygame.draw.line(self.screen,(0,255,100),
-                         CENTER,(x,y),3)
+            surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
-    def draw_targets(self):
-        for t in self.targets:
-            pygame.draw.circle(self.screen,(0,255,0),t,5)
+            theta = self.angle - (i*0.03)
 
-    def update_target(self,pos):
+            x = CENTER[0] + RADIUS * math.cos(theta)
+            y = CENTER[1] + RADIUS * math.sin(theta)
+
+            pygame.draw.line(surface,(0,255,120,alpha),
+                             CENTER,(x,y),3)
+
+            self.screen.blit(surface,(0,0))
+
+    def draw_noise(self):
+        for _ in range(50):
+            x = CENTER[0] + int(math.cos(math.radians(_*7))*RADIUS*0.6)
+            y = CENTER[1] + int(math.sin(math.radians(_*5))*RADIUS*0.6)
+            pygame.draw.circle(self.screen,(0,80,40),(x,y),1)
+
+    def update(self,pos):
         if pos:
             x = int(CENTER[0]+pos[0])
             y = int(CENTER[1]-pos[1])
+
             self.targets.append((x,y))
+            self.trails.append((x,y))
 
-    def run(self):
-        running=True
-        while running:
+            if len(self.trails) > 20:
+                self.trails.pop(0)
 
-            self.screen.fill((5,15,5))
+    def draw_targets(self):
 
-            for event in pygame.event.get():
-                if event.type==pygame.QUIT:
-                    running=False
+        for i,t in enumerate(self.trails):
+            fade = int(255*(i/len(self.trails)))
+            pygame.draw.circle(self.screen,(0,fade,0),t,4)
 
-            self.draw_radar_grid()
-            self.draw_sweep()
-            self.draw_targets()
+        for t in self.targets:
+            pygame.draw.circle(self.screen,(0,255,0),t,6)
 
-            pygame.display.update()
-            self.clock.tick(60)
+    def run_frame(self):
 
-        pygame.quit()
+        self.screen.fill((0,10,0))
+
+        self.draw_noise()
+        self.draw_rings()
+
+        self.angle += 0.03
+        self.draw_sweep_sector()
+
+        self.draw_targets()
+
+        pygame.display.update()
+        self.clock.tick(60)
