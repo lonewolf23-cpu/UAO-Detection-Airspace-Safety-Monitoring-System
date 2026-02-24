@@ -19,6 +19,7 @@ from src.trajectory import predict_path, restricted_airspace_violation
 from src.risk_assessment import assess_risk
 from src.alert_system import issue_alert
 from src.live_radar import LiveRadar
+from src.advanced_radar import AdvancedRadar
 
 
 # ------------------------------
@@ -66,6 +67,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     radar = LiveRadar(radius=radius)
+    radar = AdvancedRadar()
 
     # ==========================
     # HEADLESS MODE (Codespaces)
