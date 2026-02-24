@@ -7,9 +7,13 @@ import signal
 import sys
 import random
 import os
+import platform
 HEADLESS = (
     os.environ.get("CODESPACES") == "true"
-    or os.environ.get("DISPLAY") is None
+    or (
+        platform.system() == "Linux"
+        and os.environ.get("DISPLAY") is None
+    )
 )
 import matplotlib.pyplot as plt
 
