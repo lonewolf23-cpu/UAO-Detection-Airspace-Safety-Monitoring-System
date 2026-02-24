@@ -66,8 +66,16 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    radar = LiveRadar(radius=radius)
-    radar = AdvancedRadar()
+# ==========================
+# RADAR SELECTION
+# ==========================
+    if HEADLESS:
+        print("Headless Mode → Generating 2D Map Frames")
+        radar = None
+       generator = FrameGenerator(radius=radius)
+    else:
+        print("GUI Mode → Advanced Radar Activated")
+        radar = AdvancedRadar()
 
     # ==========================
     # HEADLESS MODE (Codespaces)
