@@ -1,5 +1,6 @@
 # Ignore generated radar images
 radar_frames/
+frames/
 
 # Ignore Python cache
 __pycache__/
