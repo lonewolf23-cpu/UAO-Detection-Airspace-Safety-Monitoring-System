@@ -138,7 +138,7 @@ def main():
             print("-", act)
 
         radar.update(current_position)
-        radar.run_frames()
+        radar.run_frame()
 
 
 # ------------------------------
