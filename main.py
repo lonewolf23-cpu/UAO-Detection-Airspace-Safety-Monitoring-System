@@ -72,7 +72,7 @@ def main():
     if HEADLESS:
         print("Headless Mode → Generating 2D Map Frames")
         radar = None
-       generator = FrameGenerator(radius=radius)
+        generator = FrameGenerator(radius=radius)
     else:
         print("GUI Mode → Advanced Radar Activated")
         radar = AdvancedRadar()
