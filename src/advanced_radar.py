@@ -1,8 +1,9 @@
 import pygame
 import math
+import random
 
 WIDTH, HEIGHT = 900, 700
-CENTER = (WIDTH//2, HEIGHT//2)
+CENTER = (WIDTH // 2, HEIGHT // 2)
 RADIUS = 260
 
 class AdvancedRadar:
@@ -10,70 +11,116 @@ class AdvancedRadar:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Military Radar Display")
+        pygame.display.set_caption("Advanced Military Radar")
 
         self.clock = pygame.time.Clock()
-        self.angle = 0
-        self.targets = []
-        self.trails = []
 
+        self.angle = 0
+        self.sweep_speed = 0.01   # Slower sweep (smooth)
+        self.targets = []
+        self.max_targets = 25
+
+        self.spawn_timer = 0
+
+    # -------------------------------
+    # Background grid & glow
+    # -------------------------------
     def draw_rings(self):
         for r in range(50, RADIUS, 50):
-            pygame.draw.circle(self.screen,(0,255,120),CENTER,r,1)
+            pygame.draw.circle(self.screen, (0, 120, 60), CENTER, r, 1)
 
-    def draw_sweep_sector(self):
+        # Outer glow ring
+        pygame.draw.circle(self.screen, (0, 255, 120), CENTER, RADIUS, 2)
 
-        for i in range(20):
+    # -------------------------------
+    # Radar sweep with glow
+    # -------------------------------
+    def draw_sweep(self):
+        sweep_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 
-            alpha = max(5, 60 - i*3)
-
-            surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-
-            theta = self.angle - (i*0.03)
+        for i in range(60):
+            fade = max(0, 180 - i * 3)
+            theta = self.angle - (i * 0.02)
 
             x = CENTER[0] + RADIUS * math.cos(theta)
             y = CENTER[1] + RADIUS * math.sin(theta)
 
-            pygame.draw.line(surface,(0,255,120,alpha),
-                             CENTER,(x,y),3)
+            pygame.draw.line(
+                sweep_surface,
+                (0, 255, 120, fade),
+                CENTER,
+                (x, y),
+                2
+            )
 
-            self.screen.blit(surface,(0,0))
+        self.screen.blit(sweep_surface, (0, 0))
 
+    # -------------------------------
+    # Random realistic noise
+    # -------------------------------
     def draw_noise(self):
-        for _ in range(50):
-            x = CENTER[0] + int(math.cos(math.radians(_*7))*RADIUS*0.6)
-            y = CENTER[1] + int(math.sin(math.radians(_*5))*RADIUS*0.6)
-            pygame.draw.circle(self.screen,(0,80,40),(x,y),1)
+        for _ in range(30):
+            angle = random.uniform(0, 2 * math.pi)
+            distance = random.uniform(0, RADIUS)
+            x = int(CENTER[0] + math.cos(angle) * distance)
+            y = int(CENTER[1] + math.sin(angle) * distance)
+            pygame.draw.circle(self.screen, (0, 50, 25), (x, y), 1)
 
-    def update(self,pos):
-        if pos:
-            x = int(CENTER[0]+pos[0])
-            y = int(CENTER[1]-pos[1])
+    # -------------------------------
+    # Add controlled targets
+    # -------------------------------
+    def spawn_target(self):
+        angle = random.uniform(0, 2 * math.pi)
+        distance = random.uniform(40, RADIUS - 20)
 
-            self.targets.append((x,y))
-            self.trails.append((x,y))
+        x = int(CENTER[0] + math.cos(angle) * distance)
+        y = int(CENTER[1] + math.sin(angle) * distance)
 
-            if len(self.trails) > 20:
-                self.trails.pop(0)
+        self.targets.append({
+            "pos": [x, y],
+            "life": 255
+        })
 
+        if len(self.targets) > self.max_targets:
+            self.targets.pop(0)
+
+    # -------------------------------
+    # Draw targets with fading trail
+    # -------------------------------
     def draw_targets(self):
+        for target in self.targets:
+            x, y = target["pos"]
+            life = target["life"]
 
-        for i,t in enumerate(self.trails):
-            fade = int(255*(i/len(self.trails)))
-            pygame.draw.circle(self.screen,(0,fade,0),t,4)
+            # Glow
+            glow_surface = pygame.Surface((20, 20), pygame.SRCALPHA)
+            pygame.draw.circle(glow_surface, (0, 255, 0, life), (10, 10), 6)
+            self.screen.blit(glow_surface, (x - 10, y - 10))
 
-        for t in self.targets:
-            pygame.draw.circle(self.screen,(0,255,0),t,6)
+            # Fade out slowly
+            target["life"] -= 2
 
+        # Remove dead targets
+        self.targets = [t for t in self.targets if t["life"] > 0]
+
+    # -------------------------------
+    # Frame update
+    # -------------------------------
     def run_frame(self):
 
-        self.screen.fill((0,10,0))
+        self.screen.fill((0, 15, 0))
 
         self.draw_noise()
         self.draw_rings()
 
-        self.angle += 0.03
-        self.draw_sweep_sector()
+        self.angle += self.sweep_speed
+        self.draw_sweep()
+
+        # Spawn targets slowly
+        self.spawn_timer += 1
+        if self.spawn_timer > 60:   # every 1 second
+            self.spawn_target()
+            self.spawn_timer = 0
 
         self.draw_targets()
 
