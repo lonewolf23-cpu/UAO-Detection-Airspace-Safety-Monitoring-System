@@ -7,6 +7,13 @@ RADIUS = 250
 
 class AdvancedRadar:
 
+    def update(self, detected_object):
+    if detected_object is None:
+        return
+
+    # update radar tracking logic
+    self.current_object = detected_object
+
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
