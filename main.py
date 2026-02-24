@@ -16,7 +16,7 @@ from src.frame_generator import FrameGenerator
 from src.trajectory import restricted_airspace_violation
 from src.risk_assessment import assess_risk
 from src.alert_system import issue_alert
-from src.advanced_radar import AdvancedRadar   # ✅ ONLY THIS IMPORT
+from src.advanced_radar import AdvancedRadar
 
 
 # ------------------------------
@@ -96,55 +96,65 @@ def main():
         print("2D Frames Generated Successfully!")
         return
 
-
     # ==========================
     # GUI MODE
     # ==========================
     print("GUI Mode → Advanced Radar Activated")
 
-    radar = AdvancedRadar()   # ✅ created ONLY in GUI
-
+    radar = AdvancedRadar()
     clock = pygame.time.Clock()
+
+    threat_timer = 0   # controls terminal update speed
 
     while True:
 
-    clock.tick(2)   # 🔥 THIS CONTROLS THREAT UPDATE SPEED
+        clock.tick(60)   # smooth radar FPS
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        print("\n==============================")
-        print(" Airspace Safety Monitoring ")
-        print("==============================\n")
+        # ----------------------------------
+        # Slow down threat detection (1 sec)
+        # ----------------------------------
+        threat_timer += 1
 
-        detected_object, threat_type = detect_object()
-        print("Detected Object:", detected_object)
+        if threat_timer >= 60:   # 60 frames ≈ 1 second
+            threat_timer = 0
 
-        if threat_type == "NON-THREAT":
-            print("Status: Natural Activity")
-            radar.update(None)
-            radar.run_frame()
-            continue
+            print("\n==============================")
+            print(" Airspace Safety Monitoring ")
+            print("==============================\n")
 
-        current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
+            detected_object, threat_type = detect_object()
+            print("Detected Object:", detected_object)
 
-        print("Predicted Path:", next_position)
+            if threat_type == "NON-THREAT":
+                print("Status: Natural Activity")
+                radar.update(None)
 
-        violation = restricted_airspace_violation(
-            next_position,
-            restricted_zone_center,
-            radius
-        )
+            else:
+                current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
 
-        risk = assess_risk(speed, violation, altitude_change, speed_change)
-        actions = issue_alert(risk)
+                print("Predicted Path:", next_position)
 
-        print("Risk Level:", risk)
-        for act in actions:
-            print("-", act)
+                violation = restricted_airspace_violation(
+                    next_position,
+                    restricted_zone_center,
+                    radius
+                )
 
-        radar.update(current_position)
+                risk = assess_risk(speed, violation, altitude_change, speed_change)
+                actions = issue_alert(risk)
+
+                print("Risk Level:", risk)
+                for act in actions:
+                    print("-", act)
+
+                radar.update(current_position)
+
+        # Radar runs smoothly every frame
         radar.run_frame()
 
 
