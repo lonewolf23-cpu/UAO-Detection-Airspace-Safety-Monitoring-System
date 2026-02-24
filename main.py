@@ -137,9 +137,8 @@ def main():
         for act in actions:
             print("-", act)
 
-        radar.update_target(current_position)
-
-        plt.pause(1.5)
+        radar.update(current_position)
+        radar.run_frame()
 
 
 # ------------------------------
