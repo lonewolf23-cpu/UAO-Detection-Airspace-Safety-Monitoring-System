@@ -8,8 +8,8 @@ RADIUS = 250
 class AdvancedRadar:
 
     def update(self, detected_object):
-    if detected_object is None:
-        return
+        if detected_object is None:
+            return
 
     # update radar tracking logic
     self.current_object = detected_object
@@ -63,6 +63,12 @@ class AdvancedRadar:
             y = int(CENTER[1]-pos[1])
             self.targets.append((x,y))
 
+    def add_target(self, pos):
+    if pos:
+        x = int(CENTER[0] + pos[0])
+        y = int(CENTER[1] - pos[1])
+        self.targets.append((x, y))
+        
     def run(self):
         running=True
         while running:
