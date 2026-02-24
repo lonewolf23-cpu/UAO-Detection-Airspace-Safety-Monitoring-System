@@ -104,8 +104,11 @@ def main():
 
     radar = AdvancedRadar()   # ✅ created ONLY in GUI
 
+    clock = pygame.time.Clock()
+
     while True:
 
+    clock.tick(2)   # 🔥 THIS CONTROLS THREAT UPDATE SPEED
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
