@@ -7,13 +7,6 @@ RADIUS = 250
 
 class AdvancedRadar:
 
-    def update(self, detected_object):
-        if detected_object is None:
-            return
-
-    # update radar tracking logic
-    self.current_object = detected_object
-
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -22,12 +15,20 @@ class AdvancedRadar:
         self.clock = pygame.time.Clock()
         self.angle = 0
         self.targets = []
+        self.current_object = None   # initialize here ✅
+
+    def update(self, detected_object):
+        if detected_object is None:
+            return
+
+        # update radar tracking logic
+        self.current_object = detected_object
 
     def draw_glow_circle(self, radius, color):
         for i in range(10):
             pygame.draw.circle(
                 self.screen,
-                (color[0], color[1], color[2], 20),
+                (color[0], color[1], color[2]),
                 CENTER,
                 radius+i,
                 1
@@ -63,12 +64,6 @@ class AdvancedRadar:
             y = int(CENTER[1]-pos[1])
             self.targets.append((x,y))
 
-    def add_target(self, pos):
-        if pos:
-            x = int(CENTER[0] + pos[0])
-            y = int(CENTER[1] - pos[1])
-            self.targets.append((x, y))
-        
     def run(self):
         running=True
         while running:
@@ -85,3 +80,5 @@ class AdvancedRadar:
 
             pygame.display.update()
             self.clock.tick(60)
+
+        pygame.quit()
