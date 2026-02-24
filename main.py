@@ -66,6 +66,7 @@ def signal_handler(sig, frame):
 # ------------------------------
 # MAIN FUNCTION
 # ------------------------------
+from advanced_radar import AdvancedRadar
 def main():
 
     signal.signal(signal.SIGINT, signal_handler)
