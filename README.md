@@ -139,3 +139,6 @@ B.Tech Artificial Intelligence & Data Science Student
 USER NAME = lonewolf23-cpu
 UAO Detection – Airspace Safety Monitoring System
 Early Warning & Airspace Safety Monitoring Research Project
+The Radar or the sturcture may be based on or of militry radar or defence systems but every used models and data are only similated with the help of ai model and real data is not feed
+The AI in this system does have any optimal intelligence to think more than what it is programmed but how ever it cannot be fully trusted as this is still undergoing development i will update everything in a seperate .md / log.md/ record.md file which will have a report on the errors and dangers in using it.
+As its not the Ai which is dangerous its about who uses it and how it is being used and what it is used for .
