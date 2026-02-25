@@ -12,7 +12,7 @@ class AdvancedRadar:
 
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("3D Military Defence Radar")
+        pygame.display.set_caption("3D Deep Radar") #millitry grade defence radar copy or temp
 
         self.clock = pygame.time.Clock()
 
