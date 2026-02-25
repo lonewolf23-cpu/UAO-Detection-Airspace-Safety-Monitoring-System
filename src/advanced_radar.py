@@ -63,7 +63,7 @@ class AdvancedRadar:
     # ==============================
     # 🛰 ROTATING GRID
     # ==============================
-    def draw_grid(self):
+    def draw_grid(self):                  #  this is the setup of the grid scaner grid
 
         for i in range(0,360,30):
 
@@ -93,7 +93,7 @@ class AdvancedRadar:
     # ==============================
     # SWEEP
     # ==============================
-    def draw_sweep(self):
+    def draw_sweep(self):                #sweeper in the scanneer
 
         surface = pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
 
