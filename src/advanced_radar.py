@@ -1,6 +1,5 @@
 import pygame
 import math
-import random
 
 WIDTH, HEIGHT = 900, 700
 CENTER = (WIDTH//2, HEIGHT//2)
@@ -12,18 +11,16 @@ class AdvancedRadar:
 
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("3D Deep Radar") #millitry grade defence radar copy or temp
+        pygame.display.set_caption("3D Deep Radar")
 
         self.clock = pygame.time.Clock()
 
-        self.angle = 0
-        self.grid_angle = 0
+        self.angle = 0          # ONLY SWEEPER WILL ROTATE
         self.targets = []
-
         self.pulse = 0
 
     # ==============================
-    # 🎯 MAIN UPDATE FUNCTION
+    # 🎯 UPDATE TARGET
     # ==============================
     def update(self, pos):
 
@@ -34,7 +31,6 @@ class AdvancedRadar:
         y = int(CENTER[1] - pos[1])
 
         depth = math.sqrt(pos[0]**2 + pos[1]**2)
-
         classification = self.classify(depth)
 
         self.targets.append({
@@ -49,7 +45,7 @@ class AdvancedRadar:
             self.targets.pop(0)
 
     # ==============================
-    # 🛩 CLASSIFICATION SYSTEM
+    # 🛩 CLASSIFIER
     # ==============================
     def classify(self, depth):
 
@@ -61,23 +57,27 @@ class AdvancedRadar:
             return "Threat"
 
     # ==============================
-    # 🛰 ROTATING GRID
+    # 🛰 STATIC GRID (NO ROTATION)
     # ==============================
-    def draw_grid(self):                  #  this is the setup of the grid scaner grid
+    def draw_grid(self):
 
-        for i in range(0,360,30):
-
-            theta = math.radians(i) + self.grid_angle
-
-            x = CENTER[0] + RADIUS*math.cos(theta)
-            y = CENTER[1] + RADIUS*math.sin(theta)
-
-            pygame.draw.line(self.screen,(0,90,40),CENTER,(x,y),1)
-
-        for r in range(50,RADIUS,50):
+        # RANGE RINGS
+        for r in range(50, RADIUS, 50):
             pygame.draw.circle(self.screen,(0,100,40),CENTER,r,1)
 
-        self.grid_angle += 0.002
+        # X AXIS
+        pygame.draw.line(
+            self.screen,(0,80,30),
+            (CENTER[0]-RADIUS,CENTER[1]),
+            (CENTER[0]+RADIUS,CENTER[1]),1
+        )
+
+        # Y AXIS
+        pygame.draw.line(
+            self.screen,(0,80,30),
+            (CENTER[0],CENTER[1]-RADIUS),
+            (CENTER[0],CENTER[1]+RADIUS),1
+        )
 
     # ==============================
     # 🌊 PULSE WAVE
@@ -85,15 +85,13 @@ class AdvancedRadar:
     def draw_pulse(self):
 
         self.pulse += 1
-
         r = (self.pulse % RADIUS)
-
         pygame.draw.circle(self.screen,(0,255,120),CENTER,r,1)
 
     # ==============================
-    # SWEEP
+    # 📡 SWEEPER ONLY ROTATES
     # ==============================
-    def draw_sweep(self):                #sweeper in the scanneer
+    def draw_sweep(self):
 
         surface = pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
 
@@ -110,7 +108,7 @@ class AdvancedRadar:
 
         self.screen.blit(surface,(0,0))
 
-        self.angle += 0.01
+        self.angle += 0.01   # ONLY SWEEPER MOVES
 
     # ==============================
     # 🚨 TARGET TRACKING
@@ -120,7 +118,6 @@ class AdvancedRadar:
         for target in self.targets:
 
             x,y = target["pos"]
-            life = target["life"]
             depth = target["depth"]
             cls = target["class"]
 
@@ -138,7 +135,7 @@ class AdvancedRadar:
                 color = (0,255,0)
 
             glow = pygame.Surface((20,20),pygame.SRCALPHA)
-            pygame.draw.circle(glow,(*color,life),(10,10),size)
+            pygame.draw.circle(glow,(*color,target["life"]),(10,10),size)
             self.screen.blit(glow,(x-10,y-10))
 
             target["life"] -= 1
