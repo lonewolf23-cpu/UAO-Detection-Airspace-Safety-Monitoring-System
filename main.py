@@ -11,12 +11,24 @@ import platform
 import pygame
 import matplotlib.pyplot as plt
 
+from ultralytics import YOLO
+import cv2
+
 from src.detection import detect_object
 from src.frame_generator import FrameGenerator
 from src.trajectory import restricted_airspace_violation
 from src.risk_assessment import assess_risk
 from src.alert_system import issue_alert
 from src.advanced_radar import AdvancedRadar
+
+
+# ------------------------------
+# YOLO MODEL (optional)
+# ------------------------------
+USE_YOLO = False   # change to True if using camera
+
+if USE_YOLO:
+    yolo_model = YOLO("yolov8n.pt")
 
 
 # ------------------------------
@@ -32,6 +44,27 @@ HEADLESS = (
         and os.environ.get("DISPLAY") is None
     )
 )
+
+
+# ------------------------------
+# SYSTEM MODE
+# ------------------------------
+SYSTEM_MODE = "military"
+# options:
+# "military"
+# "civilian"
+
+
+# ------------------------------
+# TARGET TRACKING SYSTEM
+# ------------------------------
+target_counter = 1000
+tracked_targets = {}
+
+def generate_target_id():
+    global target_counter
+    target_counter += 1
+    return f"TGT-{target_counter}"
 
 
 # ------------------------------
@@ -59,6 +92,32 @@ def generate_simulated_motion():
 
 
 # ------------------------------
+# YOLO DETECTION
+# ------------------------------
+def detect_with_yolo():
+
+    cap = cv2.VideoCapture(0)
+
+    ret, frame = cap.read()
+
+    if not ret:
+        return "unknown"
+
+    results = yolo_model(frame)
+
+    for r in results:
+        for box in r.boxes:
+
+            cls = int(box.cls)
+            label = yolo_model.names[cls]
+
+            if label in ["airplane", "bird", "drone"]:
+                return label
+
+    return "unknown"
+
+
+# ------------------------------
 # STOP HANDLER
 # ------------------------------
 def signal_handler(sig, frame):
@@ -79,6 +138,7 @@ def main():
     # HEADLESS MODE
     # ==========================
     if HEADLESS:
+
         print("Headless Mode → Generating 2D Map Frames")
 
         generator = FrameGenerator(radius=radius)
@@ -96,6 +156,7 @@ def main():
         print("2D Frames Generated Successfully!")
         return
 
+
     # ==========================
     # GUI MODE
     # ==========================
@@ -104,11 +165,12 @@ def main():
     radar = AdvancedRadar()
     clock = pygame.time.Clock()
 
-    threat_timer = 0   # controls terminal update speed
+    threat_timer = 0
+
 
     while True:
 
-        clock.tick(60)   # smooth radar FPS
+        clock.tick(60)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -116,25 +178,63 @@ def main():
                 sys.exit()
 
         # ----------------------------------
-        # Slow down threat detection (1 sec)
+        # Slow down detection to 1 second
         # ----------------------------------
         threat_timer += 1
 
-        if threat_timer >= 60:   # 60 frames ≈ 1 second
+        if threat_timer >= 60:
+
             threat_timer = 0
 
             print("\n==============================")
             print(" Airspace Safety Monitoring ")
             print("==============================\n")
 
-            detected_object, threat_type = detect_object()
-            print("Detected Object:", detected_object)
 
+            # ------------------------------
+            # DETECTION
+            # ------------------------------
+            if USE_YOLO:
+                detected_object = detect_with_yolo()
+                threat_type = "THREAT"
+            else:
+                detected_object, threat_type = detect_object()
+
+
+            # ------------------------------
+            # TARGET ID
+            # ------------------------------
+            target_id = generate_target_id()
+
+            print("Detected Object:", detected_object)
+            print("Target ID:", target_id)
+
+
+            # ------------------------------
+            # CIVILIAN MODE
+            # ------------------------------
+            if SYSTEM_MODE == "civilian":
+
+                print("Civilian Airspace Monitoring")
+
+                if random.random() < 0.2:
+                    print("⚠ Collision Warning Between Aircraft")
+
+
+            # ------------------------------
+            # NON THREAT
+            # ------------------------------
             if threat_type == "NON-THREAT":
+
                 print("Status: Natural Activity")
                 radar.update(None)
 
+
+            # ------------------------------
+            # THREAT ANALYSIS
+            # ------------------------------
             else:
+
                 current_position, next_position, speed, altitude_change, speed_change = generate_simulated_motion()
 
                 print("Predicted Path:", next_position)
@@ -146,15 +246,18 @@ def main():
                 )
 
                 risk = assess_risk(speed, violation, altitude_change, speed_change)
+
                 actions = issue_alert(risk)
 
                 print("Risk Level:", risk)
+
                 for act in actions:
                     print("-", act)
 
                 radar.update(current_position)
 
-        # Radar runs smoothly every frame
+
+        # Radar animation
         radar.run_frame()
 
 
