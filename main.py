@@ -164,6 +164,7 @@ def main():
     print("GUI Mode → Advanced Radar Activated")
 
     radar = AdvancedRadar()
+    tracker = TargetTracker()
     clock = pygame.time.Clock()
 
     threat_timer = 0
@@ -255,7 +256,11 @@ def main():
                 for act in actions:
                     print("-", act)
 
-                radar.update(current_position)
+                tracker.update_target(target_id, current_position) 
+                targets = tracker.get_targets()  
+                for tid in targets:      
+                    pos = targets[tid]["position"]      
+                    radar.update(pos)
 
 
         # Radar animation
