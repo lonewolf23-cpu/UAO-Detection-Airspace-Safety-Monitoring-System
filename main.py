@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from ultralytics import YOLO
 import cv2
 
+from src.tracker import TargetTracker
 from src.detection import detect_object
 from src.frame_generator import FrameGenerator
 from src.trajectory import restricted_airspace_violation
